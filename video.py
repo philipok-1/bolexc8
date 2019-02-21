@@ -13,6 +13,10 @@ cap = cv2.VideoCapture(0)
 COUNT=0
 TIMER=25
 
+#measure script execution time
+
+time_elapsed=time.time()
+
 #set up video output
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -64,5 +68,8 @@ while(True):
         break
 
 # done - capture release
+
+print ("script time:"+str(time.time()-time_elapsed))
+
 cap.release()
 cv2.destroyAllWindows()
