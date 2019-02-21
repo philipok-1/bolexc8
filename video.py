@@ -39,12 +39,12 @@ while(True):
 
     # write text to frame
 #    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    cv2.putText(frame,str(COUNT), bottomLeftCornerOfText, 
-    font, 
-    fontScale,
-    fontColor,
-    lineType)
-    out.write(frame)
+#    cv2.putText(frame,str(COUNT), bottomLeftCornerOfText, 
+ #   font, 
+  #  fontScale,
+   # fontColor,
+    #lineType)
+    #out.write(frame)
 
     # Display frame
     cv2.imshow('frame', frame)
@@ -69,7 +69,9 @@ while(True):
 
 # done - capture release
 
-print ("script time:"+str(time.time()-time_elapsed))
+total_time=time.time()-time_elapsed
+print ("total time="+str(total_time))
+print ("frames/second="+str(COUNT/total_time))
 
 cap.release()
 cv2.destroyAllWindows()
