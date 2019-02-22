@@ -2,6 +2,7 @@ import numpy as np
 import time, datetime
 import cv2
 from gpiozero import Button, LED
+import urllib
 
 button = Button(22)
 led=LED(17)
@@ -15,7 +16,30 @@ TIMER=25
 
 camera_mode="idle"
 
-#check mode
+
+#main functions
+
+def flash_led(device, times=3, frequency=.05):
+
+    count=0
+    while count<(times+1):
+
+        device.toggle()
+        count+=1
+        time.sleep(frequency)
+    device.off()
+    return
+        
+
+def check_connectivity():
+
+    try:
+        urllib.urlopen('http://216.58.192.142', timeout=1)
+        return True
+    except urllib.URLError as err: 
+        return False
+
+
 
 def film(COUNT=COUNT, TIMER=TIMER):
     
@@ -94,6 +118,7 @@ def film(COUNT=COUNT, TIMER=TIMER):
 
 #main script
 
+flash_led(led, 10)
 print ("ready")
 
 while True:
