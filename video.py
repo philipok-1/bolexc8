@@ -1,9 +1,13 @@
 import os
-import numpy as np
+import subprocess
 import time, datetime
+
+import numpy as np
 import cv2
 from gpiozero import Button, LED
 import urllib.request,urllib.parse,urllib.error
+
+#physical devices
 
 button = Button(22)
 led=LED(17)
@@ -16,7 +20,6 @@ TIMER=25
 #camera mode
 
 camera_mode="idle"
-
 
 #main functions
 
@@ -40,18 +43,23 @@ def check_connectivity():
     except urllib.error.URLError as err: 
         return False
 
-def send_file(file):
+def send_file(filename, file):
 
-    pass
+    led.on()
+    subprocess.Popen(["mpack", "-s", str(filename) ,file," XXXXXX@gmail.com"], shell=False)
+    time.sleep(2)
+    led.off()
 
-def interate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
+    return
+
+def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
 
     directory = os.fsencode(source)
 
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
         if filename.endswith(filetype):
-            print (filename)
+            send_file(filename, str(source+filename))
             continue
         else:
             continue
@@ -93,7 +101,7 @@ def film(COUNT=COUNT, TIMER=TIMER):
   #  fontScale,
    # fontColor,
     #lineType)
-    #out.write(frame)
+        out.write(frame)
 
     # Display frame
         cv2.imshow('frame', frame)
@@ -128,6 +136,8 @@ def film(COUNT=COUNT, TIMER=TIMER):
     led.off()
     cap.release()
     cv2.destroyAllWindows()
+    #send pics
+    iterate_directory()
 
     return
 
@@ -135,8 +145,7 @@ def film(COUNT=COUNT, TIMER=TIMER):
 
 flash_led(led, 10)
 print ("ready")
-print (check_connectivity())
-interate_directory()
+
 
 while True:
 
