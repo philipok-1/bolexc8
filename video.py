@@ -1,8 +1,9 @@
+import os
 import numpy as np
 import time, datetime
 import cv2
 from gpiozero import Button, LED
-import urllib
+import urllib.request,urllib.parse,urllib.error
 
 button = Button(22)
 led=LED(17)
@@ -34,12 +35,26 @@ def flash_led(device, times=3, frequency=.05):
 def check_connectivity():
 
     try:
-        urllib.urlopen('http://216.58.192.142', timeout=1)
+        urllib.request.urlopen('http://216.58.192.142', timeout=1)
         return True
-    except urllib.URLError as err: 
+    except urllib.error.URLError as err: 
         return False
 
+def send_file(file):
 
+    pass
+
+def interate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
+
+    directory = os.fsencode(source)
+
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        if filename.endswith(filetype):
+            print (filename)
+            continue
+        else:
+            continue
 
 def film(COUNT=COUNT, TIMER=TIMER):
     
@@ -120,6 +135,8 @@ def film(COUNT=COUNT, TIMER=TIMER):
 
 flash_led(led, 10)
 print ("ready")
+print (check_connectivity())
+interate_directory()
 
 while True:
 
