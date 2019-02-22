@@ -46,7 +46,7 @@ def check_connectivity():
 def send_file(filename, file):
 
     led.on()
-    subprocess.Popen(["mpack", "-s", str(filename) ,file," bolexc8@gmail.com"], shell=False)
+    subprocess.Popen(["mpack", "-s", str(filename) ,file," XXXX@gmail.com"], shell=False)
     time.sleep(2)
     led.off()
 
