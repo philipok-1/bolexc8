@@ -52,10 +52,6 @@ def send_file(filename, file):
 
     return
 
-def convert_file(filename, file):
-
-    subprocess.Popen(["ffmpeg", "-i", file, filename+"mp4"], shell=False)
-
 def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
 
     directory = os.fsencode(source)
