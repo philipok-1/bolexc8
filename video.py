@@ -46,11 +46,15 @@ def check_connectivity():
 def send_file(filename, file):
 
     led.on()
-    subprocess.Popen(["mpack", "-s", str(filename) ,file," XXXXXX@gmail.com"], shell=False)
+    subprocess.Popen(["mpack", "-s", str(filename) ,file," bolexc8@gmail.com"], shell=False)
     time.sleep(2)
     led.off()
 
     return
+
+def convert_file(filename, file):
+
+    subprocess.Popen(["ffmpeg", "-i", file, filename+"mp4"], shell=False)
 
 def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
 
