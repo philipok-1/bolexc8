@@ -78,7 +78,8 @@ def film(COUNT=COUNT, TIMER=TIMER):
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
 
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+#    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+
     out = cv2.VideoWriter(timestr+'.avi',fourcc, 20.0, (640,480))
 
 #screen text (for debugging)
