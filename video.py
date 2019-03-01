@@ -1,3 +1,5 @@
+#testing stash
+
 import os
 import subprocess
 import time, datetime
@@ -69,6 +71,8 @@ def film(COUNT=COUNT, TIMER=TIMER):
     global camera_mode
 
     cap = cv2.VideoCapture(0)
+    cap.set(3,640)
+    cap.set(4,480)
 
 #measure script execution time
 
@@ -103,7 +107,7 @@ def film(COUNT=COUNT, TIMER=TIMER):
   #  fontScale,
    # fontColor,
     #lineType)
-        out.write(frame)
+#        out.write(frame)
 
     # Display frame
         cv2.imshow('frame', frame)
