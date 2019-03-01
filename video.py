@@ -3,7 +3,7 @@
 import os
 import subprocess
 import time, datetime
-
+import shutil
 import numpy as np
 import cv2
 from gpiozero import Button, LED
@@ -59,7 +59,8 @@ def move_file(file, destination):
     current_file=file
     destination_file=destination
 
-    os.rename("/home/pi/scripts/c8/"+str(current_file), "/home/pi/scripts/c8/archive"+str(destination_file))
+    shutil.move("/home/pi/scripts/c8/"+current_file, "/home/pi/scripts/c8/archive/"+destination_file)
+
 
 def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
 
@@ -69,6 +70,7 @@ def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
         filename = os.fsdecode(file)
         if filename.endswith(filetype):
             send_file(filename, str(source+filename))
+#            move_file(filename, filename)
             continue
         else:
             continue
@@ -78,8 +80,6 @@ def film(COUNT=COUNT, TIMER=TIMER):
     global camera_mode
 
     cap = cv2.VideoCapture(0)
-    cap.set(3,640)
-    cap.set(4,480)
 
 #measure script execution time
 
