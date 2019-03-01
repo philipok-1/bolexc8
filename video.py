@@ -54,6 +54,13 @@ def send_file(filename, file):
 
     return
 
+def move_file(file, destination):
+
+    current_file=file
+    destination_file=destination
+
+    os.rename("/home/pi/scripts/c8/"+str(current_file), "/home/pi/scripts/c8/archive"+str(destination_file))
+
 def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
 
     directory = os.fsencode(source)
@@ -109,8 +116,9 @@ def film(COUNT=COUNT, TIMER=TIMER):
     #lineType)
 #        out.write(frame)
 
-    # Display frame
+    # Display frame - NB remove this to improve frame rate
         cv2.imshow('frame', frame)
+       
 
     #increment count
 
