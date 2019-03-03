@@ -12,5 +12,4 @@ def convert_video(input_file):
     print ("conversion complete")
     return
 
-convert_video("20190301-174422.avi")
 

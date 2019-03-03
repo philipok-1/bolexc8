@@ -54,6 +54,15 @@ def send_file(filename, file):
 
     return
 
+def convert_video(input_file):
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    filename=str(input_file)
+    subprocess.Popen(['ffmpeg', '-r','20', '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)    
+    print ("conversion complete")
+    return
+
+
 def move_file(file, destination):
 
     current_file=file
@@ -62,7 +71,7 @@ def move_file(file, destination):
     shutil.move("/home/pi/scripts/c8/"+current_file, "/home/pi/scripts/c8/archive/"+destination_file)
 
 
-def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
+def iterate_directory(source='/home/pi/scripts/c8/', filetype='.mp4'):
 
     directory = os.fsencode(source)
 
@@ -70,7 +79,7 @@ def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
         filename = os.fsdecode(file)
         if filename.endswith(filetype):
             send_file(filename, str(source+filename))
-#            move_file(filename, filename)
+            move_file(filename, filename)
             continue
         else:
             continue
@@ -90,9 +99,8 @@ def film(COUNT=COUNT, TIMER=TIMER):
     timestr = time.strftime("%Y%m%d-%H%M%S")
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-
-    out = cv2.VideoWriter(timestr+'.avi',fourcc, 20.0, (640,480))
-#    out = cv2.VideoWriter(timestr+'.avi',fourcc, 20.0, (1280,720))
+    filename=timestr+'.avi'
+    out = cv2.VideoWriter(filename,fourcc, 20.0, (640,480))
 
 #screen text (for debugging)
 
@@ -114,7 +122,8 @@ def film(COUNT=COUNT, TIMER=TIMER):
   #  fontScale,
    # fontColor,
     #lineType)
-#        out.write(frame)
+
+        out.write(frame)
 
     # Display frame - NB remove this to improve frame rate
         cv2.imshow('frame', frame)
@@ -150,6 +159,9 @@ def film(COUNT=COUNT, TIMER=TIMER):
     led.off()
     cap.release()
     cv2.destroyAllWindows()
+    print ("converting avi")
+    convert_video('/home/pi/scripts/c8/'+filename)
+    print ("finished")
     #send pics
     iterate_directory()
 
