@@ -67,7 +67,8 @@ def convert_video(input_file):
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     filename=str(input_file)
-    subprocess.check_output(['ffmpeg','-r','20', '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)    
+#    subprocess.check_output(['ffmpeg','-nostats' ,'-loglevel','0','-r','20', '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)    
+    subprocess.check_output(['ffmpeg','-r','20', '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)
     print ("conversion complete")
     return
 
@@ -193,14 +194,21 @@ def film(COUNT=COUNT, TIMER=TIMER):
     #send pics
     scan_directory()
     led.off()
+    indicate_ready()
 
     return
 
 #main script
 
-flash_led(led, 10)
-print ("ready")
+def indicate_ready(clear=True):
+    
+    if clear: os.system('clear')
+    print ("BolexC8 Retrofit....  (C) PBW 2019..\n")
+    flash_led(led, 10)
+    print ("ready")
 
+
+indicate_ready()
 
 while True:
 
