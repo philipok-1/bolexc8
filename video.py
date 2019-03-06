@@ -1,15 +1,17 @@
-#testing stash
+#!/usr/bin/env python 
+
+
 
 import os
 import subprocess
 import time, datetime
-
+import shutil
 import numpy as np
 import cv2
 from gpiozero import Button, LED
 import urllib.request,urllib.parse,urllib.error
 
-#physical devices
+#set up physical devices
 
 button = Button(22)
 led=LED(17)
@@ -17,13 +19,16 @@ led=LED(17)
 #filming time constants
 
 COUNT=0
+
+#maximum time in seconds of filming
+
 TIMER=25
 
 #camera mode
 
 camera_mode="idle"
 
-#main functions
+#helper functions
 
 def flash_led(device, times=3, frequency=.05):
 
@@ -35,9 +40,11 @@ def flash_led(device, times=3, frequency=.05):
         time.sleep(frequency)
     device.off()
     return
-        
+
 
 def check_connectivity():
+
+    '''pings google to determine internet connectivity (True/False)'''
 
     try:
         urllib.request.urlopen('http://216.58.192.142', timeout=1)
@@ -47,14 +54,40 @@ def check_connectivity():
 
 def send_file(filename, file):
 
+    '''emails a file to defined address'''
+
     led.on()
-    subprocess.Popen(["mpack", "-s", str(filename) ,file," XXXX@gmail.com"], shell=False)
+    subprocess.call(["mpack", "-s", str(filename) ,file," bolexc8@gmail.com"], shell=False)
     time.sleep(2)
     led.off()
 
     return
 
-def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
+def convert_video(input_file):
+
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    filename=str(input_file)
+#    subprocess.check_output(['ffmpeg','-nostats' ,'-loglevel','0','-r','20', '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)    
+    subprocess.check_output(['ffmpeg','-r','20', '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)
+    print ("conversion complete")
+    return
+
+
+def move_file(file, destination):
+
+    '''file move utility using shutil'''
+
+    current_file=file
+    destination_file=destination
+
+    shutil.move("/home/pi/scripts/c8/"+current_file, "/home/pi/scripts/c8/archive/"+destination_file)
+
+
+def scan_directory(source='/home/pi/scripts/c8/', filetype='.mp4'):
+
+    '''scans the defined directory and emails video, then archives it'''
+
+    print ("starting scan")
 
     directory = os.fsencode(source)
 
@@ -62,17 +95,24 @@ def iterate_directory(source='/home/pi/scripts/c8/', filetype='.avi'):
         filename = os.fsdecode(file)
         if filename.endswith(filetype):
             send_file(filename, str(source+filename))
+            move_file(filename, filename)
             continue
         else:
             continue
 
+    return
+
+#main function
+
 def film(COUNT=COUNT, TIMER=TIMER):
     
+    '''this is the function that takes the video'''
+
+#set capture device
+
     global camera_mode
 
     cap = cv2.VideoCapture(0)
-    cap.set(3,640)
-    cap.set(4,480)
 
 #measure script execution time
 
@@ -83,9 +123,8 @@ def film(COUNT=COUNT, TIMER=TIMER):
     timestr = time.strftime("%Y%m%d-%H%M%S")
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-
-    out = cv2.VideoWriter(timestr+'.avi',fourcc, 20.0, (640,480))
-#    out = cv2.VideoWriter(timestr+'.avi',fourcc, 20.0, (1280,720))
+    filename=timestr+'.avi'
+    out = cv2.VideoWriter(filename,fourcc, 20.0, (640,480))
 
 #screen text (for debugging)
 
@@ -107,11 +146,14 @@ def film(COUNT=COUNT, TIMER=TIMER):
   #  fontScale,
    # fontColor,
     #lineType)
-#        out.write(frame)
 
-    # Display frame
+    #write video to file
+
+        out.write(frame)
+
+    # Display frame - NB remove this to improve frame rate
         cv2.imshow('frame', frame)
-
+       
     #increment count
 
         COUNT+=1
@@ -134,24 +176,39 @@ def film(COUNT=COUNT, TIMER=TIMER):
             camera_mode=False
             break
 
-# done - capture release
+    # done - capture release
 
     total_time=time.time()-time_elapsed
     print ("total time="+str(total_time))
     print ("frames/second="+str(COUNT/total_time))
+
     led.off()
     cap.release()
     cv2.destroyAllWindows()
+
+    #start processing the video
+
+    led.on()
+    print ("converting avi")
+    convert_video('/home/pi/scripts/c8/'+filename)
     #send pics
-    iterate_directory()
+    scan_directory()
+    led.off()
+    indicate_ready()
 
     return
 
 #main script
 
-flash_led(led, 10)
-print ("ready")
+def indicate_ready(clear=True):
+    
+    if clear: os.system('clear')
+    print ("BolexC8 Retrofit....  (C) PBW 2019..\n")
+    flash_led(led, 10)
+    print ("ready")
 
+
+indicate_ready()
 
 while True:
 
