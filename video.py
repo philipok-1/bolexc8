@@ -1,11 +1,12 @@
 #!/usr/bin/env python 
 
-
+#workingon config
 
 import os
 import subprocess
 import time, datetime
 import shutil
+import configparser
 import numpy as np
 import cv2
 from gpiozero import Button, LED
@@ -209,6 +210,11 @@ def indicate_ready(clear=True):
 
 
 indicate_ready()
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+print (config.sections())
+print (config['comms']['Email'])
 
 while True:
 
