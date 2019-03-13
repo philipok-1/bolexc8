@@ -1,7 +1,9 @@
 #!/usr/bin/env python 
 
-#incorporated config feature
-#matched actual fps to ffmpeg conversion rate
+'''incorporated config feature
+matched actual fps to ffmpeg conversion rate'''
+
+#imports
 
 import os, sys
 import subprocess
@@ -16,14 +18,24 @@ import logger
 
 #set up logging
 
-logfile = logger.loggerMaster('bolexc8','bolexc8.log',logLevel="INFO")
+logfile = logger.loggerMaster('bolexc8','bolexc8.log',logLevel="DEBUG")
 
 #set up physical devices
 
 button = Button(22)
 led=LED(17)
 
-#filming time constants
+#import configuration settings
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+logfile.info ("reading config file")
+
+email=config['comms']['Email']
+max_film_time=config['filming']['max_time']
+file_location=config['filming']['file_location']
+
+#filming timer
 
 COUNT=0
 
@@ -63,9 +75,10 @@ def check_connectivity():
         urllib.request.urlopen('http://216.58.192.142', timeout=1)
         return True
     except urllib.error.URLError as err: 
+        logfile.warning("No internet connection for file transfer")
         return False
 
-def send_file(filename, file):
+def send_file(filename, file, email):
 
     '''emails a file to defined address'''
 
@@ -97,7 +110,7 @@ def move_file(file, destination):
     shutil.move("/home/pi/scripts/c8/"+current_file, "/home/pi/scripts/c8/archive/"+destination_file)
 
 
-def scan_directory(source='/home/pi/scripts/c8/', filetype='.mp4'):
+def scan_directory(source=str(file_location), filetype='.mp4'):
 
     '''scans the defined directory and emails video, then archives it'''
 
@@ -108,25 +121,25 @@ def scan_directory(source='/home/pi/scripts/c8/', filetype='.mp4'):
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
         if filename.endswith(filetype):
-            send_file(filename, str(source+filename))
+            send_file(filename, str(source+filename), email)
             move_file(filename, filename)
             continue
         else:
             continue
 
+    logfile.info("finished scanning "+str(directory))
+
     return
 
 #main function
 
-def film(COUNT=COUNT, TIMER=TIMER):
+def film(COUNT=COUNT, TIMER=max_film_time):
     
     '''this is the function that takes the video'''
 
 #set capture device
 
     global camera_mode
-
-
 
     cap = cv2.VideoCapture(0)
 
@@ -147,32 +160,16 @@ def film(COUNT=COUNT, TIMER=TIMER):
     filename=timestr+'.avi'
     out = cv2.VideoWriter(filename,fourcc, 20.0, (640,480))
 
-#screen text (for debugging)
-
-    font                   = cv2.FONT_HERSHEY_SIMPLEX
-    bottomLeftCornerOfText = (10,250)
-    fontScale              = 1
-    fontColor              = (255,255,255)
-    lineType               = 2
-
     while(True):
 
     # Capture frame-by-frame
         ret, frame = cap.read()
 
-    # write text to frame
-#    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-#    cv2.putText(frame,str(COUNT), bottomLeftCornerOfText, 
- #   font, 
-  #  fontScale,
-   # fontColor,
-    #lineType)
-
     #write video to file
 
         out.write(frame)
 
-    # Display frame - NB remove this to improve frame rate
+    # Display frame - NB eventually remove this to improve frame rate
         cv2.imshow('frame', frame)
        
     #increment count
@@ -226,10 +223,7 @@ def main():
 
     indicate_ready()
 
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    logfile.info (config.sections())
-    logfile.info (config['comms']['Email'])
+    scan_directory()
 
     while True:
 
@@ -245,7 +239,6 @@ def main():
         if camera_mode=="active":
 
             film()
-
 
 if __name__ == "__main__":
 
