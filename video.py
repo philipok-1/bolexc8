@@ -1,8 +1,9 @@
 #!/usr/bin/env python 
 
-#workingon config
+#incorporated config feature
+#matched actual fps to ffmpeg conversion rate
 
-import os
+import os, sys
 import subprocess
 import time, datetime
 import shutil
@@ -11,6 +12,11 @@ import numpy as np
 import cv2
 from gpiozero import Button, LED
 import urllib.request,urllib.parse,urllib.error
+import logger
+
+#set up logging
+
+logfile = logger.loggerMaster('bolexc8','bolexc8.log',logLevel="INFO")
 
 #set up physical devices
 
@@ -42,6 +48,12 @@ def flash_led(device, times=3, frequency=.05):
     device.off()
     return
 
+def indicate_ready(clear=True):
+    
+    if clear: os.system('clear')
+    logfile.info ("BolexC8 Retrofit....  (C) PBW 2019..\n")
+    flash_led(led, 10)
+    logfile.info ("ready")
 
 def check_connectivity():
 
@@ -64,13 +76,14 @@ def send_file(filename, file):
 
     return
 
-def convert_video(input_file):
+def convert_video(input_file, framerate=20):
 
+    framerate=str(framerate)
     timestr = time.strftime("%Y%m%d-%H%M%S")
     filename=str(input_file)
 #    subprocess.check_output(['ffmpeg','-nostats' ,'-loglevel','0','-r','20', '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)    
-    subprocess.check_output(['ffmpeg','-r','20', '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)
-    print ("conversion complete")
+    subprocess.check_output(['ffmpeg','-r',framerate, '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)
+    logfile.info ("conversion complete")
     return
 
 
@@ -88,7 +101,7 @@ def scan_directory(source='/home/pi/scripts/c8/', filetype='.mp4'):
 
     '''scans the defined directory and emails video, then archives it'''
 
-    print ("starting scan")
+    logfile.info ("starting scan")
 
     directory = os.fsencode(source)
 
@@ -113,7 +126,14 @@ def film(COUNT=COUNT, TIMER=TIMER):
 
     global camera_mode
 
+
+
     cap = cv2.VideoCapture(0)
+
+    if cap is None or not cap.isOpened():
+
+        logfile.warning("No camera detected")
+        sys.exit()
 
 #measure script execution time
 
@@ -180,8 +200,9 @@ def film(COUNT=COUNT, TIMER=TIMER):
     # done - capture release
 
     total_time=time.time()-time_elapsed
-    print ("total time="+str(total_time))
-    print ("frames/second="+str(COUNT/total_time))
+    fps=int(COUNT//total_time)
+    logfile.info ("total time="+str(total_time))
+    logfile.info ("frames/second="+str(fps))
 
     led.off()
     cap.release()
@@ -190,8 +211,8 @@ def film(COUNT=COUNT, TIMER=TIMER):
     #start processing the video
 
     led.on()
-    print ("converting avi")
-    convert_video('/home/pi/scripts/c8/'+filename)
+    logfile.info ("converting avi")
+    convert_video('/home/pi/scripts/c8/'+filename, fps)
     #send pics
     scan_directory()
     led.off()
@@ -201,36 +222,31 @@ def film(COUNT=COUNT, TIMER=TIMER):
 
 #main script
 
-def indicate_ready(clear=True):
-    
-    if clear: os.system('clear')
-    print ("BolexC8 Retrofit....  (C) PBW 2019..\n")
-    flash_led(led, 10)
-    print ("ready")
+def main():
+
+    indicate_ready()
+
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    logfile.info (config.sections())
+    logfile.info (config['comms']['Email'])
+
+    while True:
+
+        if button.is_pressed:
+
+            if button.is_held:
+
+               camera_mode="active"
+               button_count=0
+
+        else: camera_mode="idle"
+
+        if camera_mode=="active":
+
+            film()
 
 
-indicate_ready()
+if __name__ == "__main__":
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-print (config.sections())
-print (config['comms']['Email'])
-
-while True:
-
-    if button.is_pressed:
-
-       if button.is_held:
-
-           camera_mode="active"
-           button_count=0
-
-    else: camera_mode="idle"
-
-    if camera_mode=="active":
-
-        film()
-
-    
-
-    
+    main()
