@@ -13,23 +13,18 @@ LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
 LED_BRIGHTNESS = 150     # Set to 0 for darkest and 255 for brightest
 LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
-LED_DEFAULT_COLOR = Color(50,50,50) # default color for neopixel
-
-def colorWipe(neopixel, color, wait_ms=50):
-    """Wipe color across display a pixel at a time."""
-    for i in range(neopixel.numPixels()):
-        neopixel.setPixelColor(i, color)
-        neopixel.show()
-        time.sleep(wait_ms/1000.0)
+LED_DEFAULT_COLOR = Color(120,50,50) # default color for neopixel
 
 def clearNeopixel(neopixel):
 
-    colorWipe(neopixel, Color(0,0,0), 10)
+    neopixel.setPixelColor(0,Color(0,0,0))
+    neopixel.show()
     return
 
 def neopixelOn(neopixel, rgb=LED_DEFAULT_COLOR):
 
     neopixel.setPixelColor(0,rgb)    
+    neopixel.show()
 
 def flash(neopixel, rgb=LED_DEFAULT_COLOR, pause=.5, number=10):
 
@@ -67,7 +62,10 @@ if __name__ == '__main__':
 
     try:
 
-        flash(neopixel)
+#        flash(neopixel)
+        neopixelOn(neopixel)
+        time.sleep(2)
+        clearNeopixel(neopixel)
 
     except KeyboardInterrupt:
         if args.clearNeopixel:
