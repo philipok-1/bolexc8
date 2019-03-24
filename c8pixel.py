@@ -15,6 +15,15 @@ LED_INVERT     = False   # True to invert the signal (when using NPN transistor 
 LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 LED_DEFAULT_COLOR = Color(120,50,50) # default color for neopixel
 
+def initiateNeopixel():
+
+        # Create NeoPixel object with appropriate configuration.
+    neopixel = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    # Intialize the library (must be called once before other functions).
+    neopixel.begin()
+    return neopixel
+
+
 def clearNeopixel(neopixel):
 
     neopixel.setPixelColor(0,Color(0,0,0))

@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 
 '''incorporated config feature
 matched actual fps to ffmpeg conversion rate'''
@@ -15,6 +15,8 @@ import cv2
 from gpiozero import Button, LED
 import urllib.request,urllib.parse,urllib.error
 import logger
+
+import c8pixel
 
 #set up logging
 
@@ -220,6 +222,12 @@ def film(COUNT=COUNT, TIMER=max_film_time):
 #main script
 
 def main():
+    
+
+    neopixel=c8pixel.initiateNeopixel()
+    c8pixel.neopixelOn(neopixel)
+    time.sleep(2)
+    c8pixel.clearNeopixel(neopixel)
 
     indicate_ready()
 
