@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-'''incorporated config feature
-matched actual fps to ffmpeg conversion rate'''
+'''incorporated neopixel integration'''
 
 #imports
 
@@ -24,8 +23,9 @@ logfile = logger.loggerMaster('bolexc8','bolexc8.log',logLevel="DEBUG")
 
 #set up physical devices
 
-button = Button(22)
-led=LED(17)
+button = Button(16)
+
+neopixel=c8pixel.initiateNeopixel()
 
 #import configuration settings
 
@@ -43,7 +43,7 @@ COUNT=0
 
 #maximum time in seconds of filming
 
-TIMER=25
+TIMER=10
 
 #camera mode
 
@@ -51,23 +51,14 @@ camera_mode="idle"
 
 #helper functions
 
-def flash_led(device, times=3, frequency=.05):
-
-    count=0
-    while count<(times+1):
-
-        device.toggle()
-        count+=1
-        time.sleep(frequency)
-    device.off()
-    return
-
-def indicate_ready(clear=True):
+def indicate_ready(color=c8pixel.GREEN,clear=True):
     
     if clear: os.system('clear')
     logfile.info ("BolexC8 Retrofit....  (C) PBW 2019..\n")
-    flash_led(led, 10)
     logfile.info ("ready")
+    c8pixel.neopixelOn(neopixel, color)
+    time.sleep(3)
+    c8pixel.clearNeopixel(neopixel)
 
 def check_connectivity():
 
@@ -78,16 +69,17 @@ def check_connectivity():
         return True
     except urllib.error.URLError as err: 
         logfile.warning("No internet connection for file transfer")
+        c8pixel.flash(neopixel, c8pixel.YELLOW)
         return False
 
 def send_file(filename, file, email):
 
     '''emails a file to defined address'''
 
-    led.on()
+    c8pixel.neopixelOn(neopixel, c8pixel.BLUE)
     subprocess.call(["mpack", "-s", str(filename) ,file," bolexc8@gmail.com"], shell=False)
     time.sleep(2)
-    led.off()
+    c8pixel.clearNeopixel(neopixel)
 
     return
 
@@ -96,7 +88,6 @@ def convert_video(input_file, framerate=20):
     framerate=str(framerate)
     timestr = time.strftime("%Y%m%d-%H%M%S")
     filename=str(input_file)
-#    subprocess.check_output(['ffmpeg','-nostats' ,'-loglevel','0','-r','20', '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)    
     subprocess.check_output(['ffmpeg','-r',framerate, '-i', filename, '-b:a', '128k', '-c:v', 'libx264','-crf', '23',  timestr+".mp4"], shell=False)
     logfile.info ("conversion complete")
     return
@@ -110,7 +101,6 @@ def move_file(file, destination):
     destination_file=destination
 
     shutil.move("/home/pi/scripts/c8/"+current_file, "/home/pi/scripts/c8/archive/"+destination_file)
-
 
 def scan_directory(source=str(file_location), filetype='.mp4'):
 
@@ -148,6 +138,8 @@ def film(COUNT=COUNT, TIMER=max_film_time):
     if cap is None or not cap.isOpened():
 
         logfile.warning("No camera detected")
+        c8pixel.flash(neopixel, c8pixel.RED)
+        
         sys.exit()
 
 #measure script execution time
@@ -179,9 +171,9 @@ def film(COUNT=COUNT, TIMER=max_film_time):
         COUNT+=1
         flash=COUNT
 
-    #flash LED every second
+    #flash neopixel every second
         if flash%10==0:
-           led.toggle()
+           c8pixel.toggleNeopixel(neopixel,c8pixel.RED)
 
     #exit 
 
@@ -203,18 +195,18 @@ def film(COUNT=COUNT, TIMER=max_film_time):
     logfile.info ("total time="+str(total_time))
     logfile.info ("frames/second="+str(fps))
 
-    led.off()
+    c8pixel.clearNeopixel(neopixel)
     cap.release()
     cv2.destroyAllWindows()
 
     #start processing the video
 
-    led.on()
+    c8pixel.neopixelOn(neopixel, c8pixel.BLUE)
     logfile.info ("converting avi")
     convert_video('/home/pi/scripts/c8/'+filename, fps)
     #send pics
     scan_directory()
-    led.off()
+    c8pixel.clearNeopixel(neopixel)
     indicate_ready()
 
     return
@@ -223,15 +215,13 @@ def film(COUNT=COUNT, TIMER=max_film_time):
 
 def main():
     
+    global camera_mode
 
-    neopixel=c8pixel.initiateNeopixel()
-    c8pixel.neopixelOn(neopixel)
+    c8pixel.neopixelOn(neopixel, c8pixel.GREEN)
     time.sleep(2)
     c8pixel.clearNeopixel(neopixel)
 
     indicate_ready()
-
-    scan_directory()
 
     while True:
 
