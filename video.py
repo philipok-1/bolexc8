@@ -217,10 +217,6 @@ def main():
     
     global camera_mode
 
-    c8pixel.neopixelOn(neopixel, c8pixel.GREEN)
-    time.sleep(2)
-    c8pixel.clearNeopixel(neopixel)
-
     indicate_ready()
 
     while True:

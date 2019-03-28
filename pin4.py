@@ -5,14 +5,19 @@ import time
 import logger
 import datetime
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(4, GPIO.IN)
+def get_pin_state():
 
-state = GPIO.input(4)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(4, GPIO.IN)
+
+    state = GPIO.input(4)
+    return state
 
 logfile = logger.loggerMaster('battery_test','battery.log',logLevel="DEBUG")
 
+
+
 while True:
 
-    logfile.info(str(state))
+    logfile.info(str(get_pin_state()))
     time.sleep(5)
