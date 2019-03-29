@@ -45,13 +45,13 @@ file_location=config['filming']['file_location']
 
 COUNT=0
 
-#flash frequency on idla
+#flash frequency on idle
 
-INTERVAL=5
+INTERVAL=8
 
 #maximum time in seconds of filming
 
-TIMER=20
+TIMER=45
 
 #camera mode
 
@@ -177,7 +177,7 @@ def film(COUNT=COUNT, TIMER=max_film_time):
         out.write(frame)
 
     # Display frame - NB eventually remove this to improve frame rate
-        cv2.imshow('frame', frame)
+#        cv2.imshow('frame', frame)
        
     #increment count
 
