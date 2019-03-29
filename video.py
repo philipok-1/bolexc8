@@ -218,6 +218,7 @@ def main():
     global camera_mode
 
     indicate_ready()
+    timenow=time.time()
 
     while True:
 
@@ -233,6 +234,10 @@ def main():
         if camera_mode=="active":
 
             film()
+
+        elif camera_mode=="idle":
+
+            pass
 
 if __name__ == "__main__":
 

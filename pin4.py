@@ -5,6 +5,10 @@ import time
 import logger
 import datetime
 
+logfile = logger.loggerMaster('battery_test','bolexc8.log',logLevel="DEBUG")
+
+INTERVAL=10
+
 def get_pin_state():
 
     GPIO.setmode(GPIO.BCM)
@@ -13,11 +17,21 @@ def get_pin_state():
     state = GPIO.input(4)
     return state
 
-logfile = logger.loggerMaster('battery_test','battery.log',logLevel="DEBUG")
+
+def main():
+
+    timenow=time.time()
 
 
+    while True:
+        if time.time()-timenow>INTERVAL:
 
-while True:
+            logfile.info(str(get_pin_state()))
+            timenow=time.time()
+        else:
+            pass    
 
-    logfile.info(str(get_pin_state()))
-    time.sleep(5)
+
+if __name__=='__main__':
+
+    main()
