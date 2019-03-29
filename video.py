@@ -152,8 +152,8 @@ def film(COUNT=COUNT, TIMER=max_film_time):
 
         logfile.warning("No camera detected")
         c8pixel.flash(neopixel, c8pixel.RED)
-        
-        sys.exit()
+        return
+#        sys.exit()
 
 #measure script execution time
 
@@ -239,17 +239,10 @@ def main():
 
         if button.is_pressed:
 
-            if button.is_held:
-
-               camera_mode="active"
-
-        else: camera_mode="idle"
-
-        if camera_mode=="active":
-
+            logfile.debug("BUtton pressed")
             film()
 
-        elif camera_mode=="idle":
+        else:
 
             if time.time()-timenow>INTERVAL:
                 pin=int(pin4.get_pin_state())
