@@ -41,9 +41,13 @@ file_location=config['filming']['file_location']
 
 COUNT=0
 
+#flash frequency on idla
+
+INTERVAL=5
+
 #maximum time in seconds of filming
 
-TIMER=10
+TIMER=20
 
 #camera mode
 
@@ -227,7 +231,6 @@ def main():
             if button.is_held:
 
                camera_mode="active"
-               button_count=0
 
         else: camera_mode="idle"
 
@@ -237,7 +240,10 @@ def main():
 
         elif camera_mode=="idle":
 
-            pass
+            if time.time()-timenow>INTERVAL:
+
+                c8pixel.flash(neopixel, c8pixel.GREEN, pause=.08,number=2)
+                timenow=time.time()
 
 if __name__ == "__main__":
 
