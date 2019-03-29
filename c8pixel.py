@@ -17,7 +17,7 @@ LED_DEFAULT_COLOR = Color(120,50,50) # default color for neopixel
 GREEN= Color(0,128,0)
 BLUE= Color(0,0,255)
 RED= Color(205, 92, 92)
-YELLOW= Color(247, 220, 111)
+YELLOW= Color(255, 255, 0)
 
 
 def initiateNeopixel():

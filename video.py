@@ -16,6 +16,7 @@ import urllib.request,urllib.parse,urllib.error
 import logger
 
 import c8pixel
+import pin4
 
 #set up logging
 
@@ -26,6 +27,9 @@ logfile = logger.loggerMaster('bolexc8','bolexc8.log',logLevel="DEBUG")
 button = Button(16)
 
 neopixel=c8pixel.initiateNeopixel()
+
+battery_colors=[c8pixel.YELLOW, c8pixel.GREEN]
+
 
 #import configuration settings
 
@@ -218,11 +222,12 @@ def film(COUNT=COUNT, TIMER=max_film_time):
 #main script
 
 def main():
-    
+
     global camera_mode
 
     indicate_ready()
     timenow=time.time()
+    low_battery_count=0
 
     while True:
 
@@ -241,9 +246,10 @@ def main():
         elif camera_mode=="idle":
 
             if time.time()-timenow>INTERVAL:
-
-                c8pixel.flash(neopixel, c8pixel.GREEN, pause=.08,number=2)
+                pin=int(pin4.get_pin_state())
+                c8pixel.flash(neopixel, battery_colors[pin], pause=.08,number=2)
                 timenow=time.time()
+                
 
 if __name__ == "__main__":
 
