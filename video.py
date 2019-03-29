@@ -68,6 +68,11 @@ def indicate_ready(color=c8pixel.GREEN,clear=True):
     time.sleep(3)
     c8pixel.clearNeopixel(neopixel)
 
+def shutdown():
+
+    logfile.critical("Critical battery.  Shutting down")
+    subprocess.call(["shutdown -h now"], shell=False)
+
 def check_connectivity():
 
     '''pings google to determine internet connectivity (True/False)'''
@@ -77,7 +82,7 @@ def check_connectivity():
         return True
     except urllib.error.URLError as err: 
         logfile.warning("No internet connection for file transfer")
-        c8pixel.flash(neopixel, c8pixel.YELLOW)
+        c8pixel.flash(neopixel, c8pixel.YELLOW, number=5)
         return False
 
 def send_file(filename, file, email):
@@ -227,6 +232,7 @@ def main():
 
     indicate_ready()
     timenow=time.time()
+    low_battery_flag=False
     low_battery_count=0
 
     while True:
@@ -247,6 +253,12 @@ def main():
 
             if time.time()-timenow>INTERVAL:
                 pin=int(pin4.get_pin_state())
+                if pin==0:
+                    low_battery_count+=1
+                    if not low_battery_flag:
+                        logfile.warning("Low battery") 
+                        low_battery_flag=True
+              
                 c8pixel.flash(neopixel, battery_colors[pin], pause=.08,number=2)
                 timenow=time.time()
                 
