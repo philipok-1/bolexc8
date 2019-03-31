@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''incorporated neopixel integration'''
 
@@ -34,7 +34,7 @@ battery_colors=[c8pixel.YELLOW, c8pixel.GREEN]
 #import configuration settings
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('/home/pi/scripts/c8/config.ini')
 logfile.info ("reading config file")
 
 email=config['comms']['Email']
@@ -218,7 +218,8 @@ def film(COUNT=COUNT, TIMER=max_film_time):
     logfile.info ("converting avi")
     convert_video('/home/pi/scripts/c8/'+filename, fps)
     #send pics
-    scan_directory()
+    if check_connectivity():
+        scan_directory()
     c8pixel.clearNeopixel(neopixel)
     indicate_ready()
 
